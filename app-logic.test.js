@@ -1,4 +1,4 @@
-import shipFactory from "./app-logic";
+import shipFactory from "./src/app-logic";
 
 test("getLength returns the correct length of a ship", () => {
   expect(shipFactory(3).getLength()).toBe(3);
