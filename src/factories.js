@@ -82,4 +82,40 @@ const gameboardFactory = () => {
   return { getBoard, placeShip, receiveAttack, allSunk };
 };
 
-export { shipFactory, gameboardFactory };
+const playerFactory = (type, name) => {
+  const gameBoard = gameboardFactory();
+  if (type === "computer") {
+    const unattackedCoordinates = [];
+    for (let i = 0; i < 10; i += 1) {
+      for (let j = 0; j < 10; j += 1) {
+        unattackedCoordinates.push([i, j]);
+      }
+    }
+
+    const getRandomCoordinates = () =>
+      unattackedCoordinates[
+        Math.floor(Math.random() * unattackedCoordinates.length)
+      ];
+
+    const updateUnattackedCoordinates = (coordinates) => {
+      const index = unattackedCoordinates.indexOf(coordinates);
+      unattackedCoordinates.splice(index, 1);
+    };
+
+    const makeRandomPlay = (enemyBoard) => {
+      const coordinates = getRandomCoordinates();
+      enemyBoard.receiveAttack(coordinates);
+      updateUnattackedCoordinates(coordinates);
+    };
+    return { gameBoard, makeRandomPlay };
+  }
+  return {
+    name,
+    gameBoard,
+    makePlay(enemyBoard, coordinates) {
+      enemyBoard.receiveAttack(coordinates);
+    },
+  };
+};
+
+export { shipFactory, gameboardFactory, playerFactory };
