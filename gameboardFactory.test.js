@@ -90,10 +90,15 @@ test("receiveAttack results in the correct ship on the gameboard being hit", () 
   expect(gameBoard.getBoard()[3][2].getHP()).toBe(0);
 });
 
-test("receiveAttack results in the correct spot on the gameboard being marked when the attack does not hit a ship ", () => {
+test("receiveAttack returns the correct string when an attack hits a ship", () => {
   const gameBoard = gameboardFactory();
-  gameBoard.receiveAttack([3, 2]);
-  expect(gameBoard.getBoard()[3][2]).toBe("x");
+  gameBoard.placeShip(shipFactory(1), [3, 2]);
+  expect(gameBoard.receiveAttack([3, 2])).toBe("hit");
+});
+
+test("receiveAttack returns the correct string when an attack does not hit a ship", () => {
+  const gameBoard = gameboardFactory();
+  expect(gameBoard.receiveAttack([3, 2])).toBe("miss");
 });
 
 test("isSunk returns the correct value when all ships on the board have not sunk ", () => {

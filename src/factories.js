@@ -66,7 +66,9 @@ const gameboardFactory = () => {
     const col = coordinates[1];
     if (validCoordinates(coordinates) && typeof board[row][col] === "object") {
       board[row][col].hit();
-    } else board[row][col] = "x";
+      return "hit";
+    }
+    return "miss";
   };
 
   const allSunk = () => {
@@ -104,8 +106,8 @@ const playerFactory = (type, name) => {
 
     const makeRandomPlay = (enemyBoard) => {
       const coordinates = getRandomCoordinates();
-      enemyBoard.receiveAttack(coordinates);
       updateUnattackedCoordinates(coordinates);
+      return [enemyBoard.receiveAttack(coordinates), coordinates];
     };
     return { gameBoard, makeRandomPlay };
   }
@@ -113,7 +115,7 @@ const playerFactory = (type, name) => {
     name,
     gameBoard,
     makePlay(enemyBoard, coordinates) {
-      enemyBoard.receiveAttack(coordinates);
+      return enemyBoard.receiveAttack(coordinates);
     },
   };
 };
