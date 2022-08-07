@@ -1,27 +1,176 @@
 import {
   displayGameEndPopup,
+  displayPlacementScreen,
   displayUserShips,
+  hideGameEndScreen,
+  hidePlacementScreen,
   removeAllChildNodes,
 } from "./dom-stuff";
 import { playerFactory, shipFactory } from "./factories";
-import { gameIsOver } from "./game";
+import { gameIsOver, placeShipsRandomly } from "./game";
 import initialLoad from "./initial-load";
 import "./styles.css";
 
 initialLoad();
 (() => {
   let human = playerFactory("human");
-  human.gameBoard.placeShip(shipFactory(5), [1, 3], "x");
-  human.gameBoard.placeShip(shipFactory(2), [3, 1], "x");
-
   displayUserShips(human.gameBoard.getBoard());
 
   let computer = playerFactory("computer");
-  computer.gameBoard.placeShip(shipFactory(5), [1, 3], "x");
-  computer.gameBoard.placeShip(shipFactory(2), [3, 1], "x");
-  computer.gameBoard.placeShip(shipFactory(2), [0, 0], "y");
+  placeShipsRandomly(computer.gameBoard);
 
-  const addEventListeners = () => {
+  let orientation = "x";
+  let currentWidth;
+  let currentCallback;
+  let currentNext;
+
+  const rotate = document.querySelector("#rotate");
+  rotate.addEventListener("click", () => {
+    if (orientation === "x") {
+      orientation = "y";
+    } else {
+      orientation = "x";
+    }
+    addPlacementGridEventListeners(currentWidth, currentCallback, currentNext);
+  });
+
+  const addPlacementGridEventListeners = (width, callback, next) => {
+    currentWidth = width;
+    currentCallback = callback;
+    currentNext = next;
+    const placementMessage = document.querySelector("#placement-message");
+    let cells = document.querySelectorAll("#placement-grid div");
+    if (orientation === "x") {
+      cells.forEach((cell) => {
+        cell.replaceWith(cell.cloneNode(true));
+      });
+      cells = document.querySelectorAll("#placement-grid div");
+      cells.forEach((cell) => {
+        cell.addEventListener("click", () => {
+          if (
+            human.gameBoard.placeShip(
+              shipFactory(width),
+              [parseInt(cell.dataset.row, 10), parseInt(cell.dataset.col, 10)],
+              "x"
+            ) === "success"
+          ) {
+            displayUserShips(human.gameBoard.getBoard());
+            placementMessage.textContent = `Place your ${next}`;
+            orientation = "x";
+            callback();
+          }
+        });
+        cell.addEventListener("mouseenter", () => {
+          cell.style.backgroundColor = "black";
+          for (
+            let i = parseInt(cell.dataset.col);
+            i < parseInt(cell.dataset.col) + width;
+            i += 1
+          ) {
+            if (
+              document.querySelector(
+                `#placement-grid div[data-row='${cell.dataset.row}'][data-col='${i}'`
+              )
+            )
+              document.querySelector(
+                `#placement-grid div[data-row='${cell.dataset.row}'][data-col='${i}'`
+              ).style.backgroundColor = "black";
+          }
+        });
+        cell.addEventListener("mouseleave", () => {
+          cell.style.backgroundColor = "";
+          for (
+            let i = parseInt(cell.dataset.col);
+            i < parseInt(cell.dataset.col) + width;
+            i += 1
+          ) {
+            if (
+              document.querySelector(
+                `#placement-grid div[data-row='${cell.dataset.row}'][data-col='${i}'`
+              )
+            )
+              document.querySelector(
+                `#placement-grid div[data-row='${cell.dataset.row}'][data-col='${i}'`
+              ).style.backgroundColor = "";
+          }
+        });
+      });
+    } else {
+      cells.forEach((cell) => {
+        cell.replaceWith(cell.cloneNode(true));
+      });
+      cells = document.querySelectorAll("#placement-grid div");
+      cells.forEach((cell) => {
+        cell.addEventListener("click", () => {
+          if (
+            human.gameBoard.placeShip(
+              shipFactory(width),
+              [parseInt(cell.dataset.row, 10), parseInt(cell.dataset.col, 10)],
+              "y"
+            ) === "success"
+          ) {
+            displayUserShips(human.gameBoard.getBoard());
+            placementMessage.textContent = `Place your ${next}`;
+            orientation = "x";
+            callback();
+          }
+        });
+        cell.addEventListener("mouseenter", () => {
+          cell.style.backgroundColor = "black";
+          for (
+            let i = parseInt(cell.dataset.row);
+            i < parseInt(cell.dataset.row) + width;
+            i += 1
+          ) {
+            if (
+              document.querySelector(
+                `#placement-grid div[data-row='${i}'][data-col='${cell.dataset.col}'`
+              )
+            )
+              document.querySelector(
+                `#placement-grid div[data-row='${i}'][data-col='${cell.dataset.col}'`
+              ).style.backgroundColor = "black";
+          }
+        });
+        cell.addEventListener("mouseleave", () => {
+          cell.style.backgroundColor = "";
+          for (
+            let i = parseInt(cell.dataset.row);
+            i < parseInt(cell.dataset.row) + width;
+            i += 1
+          ) {
+            if (
+              document.querySelector(
+                `#placement-grid div[data-row='${i}'][data-col='${cell.dataset.col}'`
+              )
+            )
+              document.querySelector(
+                `#placement-grid div[data-row='${i}'][data-col='${cell.dataset.col}'`
+              ).style.backgroundColor = "";
+          }
+        });
+      });
+    }
+  };
+
+  const placePatrolBoat = () => {
+    addPlacementGridEventListeners(2, hidePlacementScreen);
+  };
+  const placeSubmarine = () => {
+    addPlacementGridEventListeners(3, placePatrolBoat, "Patrol Boat");
+  };
+
+  const placeDestroyer = () => {
+    addPlacementGridEventListeners(3, placeSubmarine, "Submarine");
+  };
+  const placeBattleship = () => {
+    addPlacementGridEventListeners(4, placeDestroyer, "Destroyer");
+  };
+  const placeCarrier = () => {
+    addPlacementGridEventListeners(5, placeBattleship, "Battleship");
+  };
+
+  const addComputerBoardCellsEventListeners = () => {
     const computerBoardCells = document.querySelectorAll("#computer-grid div");
     computerBoardCells.forEach((computerBoardCell) => {
       computerBoardCell.addEventListener(
@@ -161,26 +310,27 @@ initialLoad();
     });
   };
 
-  addEventListeners();
-
   const restart = document.querySelector("#restart");
   restart.addEventListener("click", () => {
-    const overlay = document.querySelector("#overlay");
-    overlay.style.display = "none";
+    hideGameEndScreen();
     const userGrid = document.querySelector("#user-grid");
     const computerGrid = document.querySelector("#computer-grid");
+    const placementGrid = document.querySelector("#placement-grid");
     removeAllChildNodes(userGrid);
     removeAllChildNodes(computerGrid);
+    removeAllChildNodes(placementGrid);
     initialLoad();
-    addEventListeners();
-    human = playerFactory("human");
-    human.gameBoard.placeShip(shipFactory(5), [1, 3], "x");
-    human.gameBoard.placeShip(shipFactory(2), [3, 1], "x");
+    displayPlacementScreen();
 
+    human = playerFactory("human");
     displayUserShips(human.gameBoard.getBoard());
 
     computer = playerFactory("computer");
-    computer.gameBoard.placeShip(shipFactory(5), [1, 3], "x");
-    computer.gameBoard.placeShip(shipFactory(2), [3, 1], "x");
+    placeShipsRandomly(computer.gameBoard);
+
+    placeCarrier();
+    addComputerBoardCellsEventListeners();
   });
+  placeCarrier();
+  addComputerBoardCellsEventListeners();
 })();

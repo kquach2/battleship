@@ -19,6 +19,16 @@ const initialLoad = () => {
       computerGrid.appendChild(cell);
     }
   }
+  const placementGrid = document.querySelector("#placement-grid");
+  for (let i = 0; i < 10; i += 1) {
+    for (let j = 0; j < 10; j += 1) {
+      const cell = document.createElement("div");
+      cell.dataset.row = i;
+      cell.dataset.col = j;
+      cell.classList.add("cell");
+      placementGrid.appendChild(cell);
+    }
+  }
 };
 
 export default initialLoad;

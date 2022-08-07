@@ -19,13 +19,27 @@ const gameboardFactory = () => {
     board[i] = ["", "", "", "", "", "", "", "", "", ""];
   const getBoard = () => board;
 
+  const verticalOverlap = (length, coordinates) => {
+    for (let i = coordinates[0]; i < coordinates[0] + length; i += 1) {
+      if (typeof board[i][coordinates[1]] === "object") return true;
+    }
+    return false;
+  };
+
+  const horizontalOverlap = (length, coordinates) => {
+    for (let i = coordinates[1]; i < coordinates[1] + length; i += 1) {
+      if (typeof board[coordinates[0]][i] === "object") return true;
+    }
+    return false;
+  };
+
   const isEnoughRoom = (length, coordinates, direction) => {
     const row = coordinates[0];
     const col = coordinates[1];
     if (direction === "x") {
-      return length <= 9 - col + 1;
+      return length <= 9 - col + 1 && !horizontalOverlap(length, coordinates);
     }
-    return length <= 9 - row + 1;
+    return length <= 9 - row + 1 && !verticalOverlap(length, coordinates);
   };
 
   const validCoordinates = (coordinates) => {
@@ -38,12 +52,15 @@ const gameboardFactory = () => {
     const shipLength = ship.getLength();
     const row = coordinates[0];
     const col = coordinates[1];
-    if (shipLength < 1) return;
-    if (shipLength === 1) return (board[row][col] = ship);
-    if (!validCoordinates(coordinates)) return;
+    if (shipLength < 1) return "fail";
+    if (shipLength === 1) {
+      board[row][col] = ship;
+      return "success";
+    }
+    if (!validCoordinates(coordinates)) return "fail";
 
     const thereIsEnoughRoom = isEnoughRoom(shipLength, coordinates, direction);
-    if (!thereIsEnoughRoom) return;
+    if (!thereIsEnoughRoom) return "fail";
 
     switch (direction) {
       case "x":
@@ -51,12 +68,14 @@ const gameboardFactory = () => {
           for (let i = col; i < col + ship.getLength(); i += 1) {
             board[row][i] = ship;
           }
+          return "success";
         }
         break;
       case "y": {
         for (let i = row; i < row + ship.getLength(); i += 1) {
           board[i][col] = ship;
         }
+        return "success";
       }
     }
   };

@@ -15,6 +15,17 @@ test("getBoard returns the gameboard", () => {
   ]);
 });
 
+test("placeShip returns success if a ship was placed successfully", () => {
+  const gameBoard = gameboardFactory();
+  expect(gameBoard.placeShip(shipFactory(3), [0, 0], "x")).toBe("success");
+});
+
+test("placeShip returns failure if a ship was not placed successfully", () => {
+  const gameBoard = gameboardFactory();
+  gameBoard.placeShip(shipFactory(3), [0, 0], "x");
+  expect(gameBoard.placeShip(shipFactory(3), [0, 0], "x")).toBe("fail");
+});
+
 test("placeShip places a ship of length 3 at the correct spot on the gameboard in the x direction", () => {
   const gameBoard = gameboardFactory();
   gameBoard.placeShip(shipFactory(3), [0, 0], "x");
