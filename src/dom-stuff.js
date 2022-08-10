@@ -1,8 +1,8 @@
-function removeAllChildNodes(parent) {
+const removeAllChildNodes = (parent) => {
   while (parent.firstChild) {
     parent.removeChild(parent.firstChild);
   }
-}
+};
 
 const updateMessage = (winner) => {
   const message = document.querySelector("#message");

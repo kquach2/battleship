@@ -19,28 +19,18 @@ initialLoad();
   let computer = playerFactory("computer");
   placeShipsRandomly(computer.gameBoard);
 
-  let orientation = "x";
+  let currentOrientation = "x";
   let currentWidth;
   let currentCallback;
-  let currentNext;
-
-  const rotate = document.querySelector("#rotate");
-  rotate.addEventListener("click", () => {
-    if (orientation === "x") {
-      orientation = "y";
-    } else {
-      orientation = "x";
-    }
-    addPlacementGridEventListeners(currentWidth, currentCallback, currentNext);
-  });
+  let nextShipToPlace;
 
   const addPlacementGridEventListeners = (width, callback, next) => {
     currentWidth = width;
     currentCallback = callback;
-    currentNext = next;
+    nextShipToPlace = next;
     const placementMessage = document.querySelector("#placement-message");
     let cells = document.querySelectorAll("#placement-grid div");
-    if (orientation === "x") {
+    if (currentOrientation === "x") {
       cells.forEach((cell) => {
         cell.replaceWith(cell.cloneNode(true));
       });
@@ -56,15 +46,15 @@ initialLoad();
           ) {
             displayUserShips(human.gameBoard.getBoard());
             placementMessage.textContent = `Place your ${next}`;
-            orientation = "x";
+            currentOrientation = "x";
             callback();
           }
         });
         cell.addEventListener("mouseenter", () => {
           cell.style.backgroundColor = "black";
           for (
-            let i = parseInt(cell.dataset.col);
-            i < parseInt(cell.dataset.col) + width;
+            let i = parseInt(cell.dataset.col, 10);
+            i < parseInt(cell.dataset.col, 10) + width;
             i += 1
           ) {
             if (
@@ -80,8 +70,8 @@ initialLoad();
         cell.addEventListener("mouseleave", () => {
           cell.style.backgroundColor = "";
           for (
-            let i = parseInt(cell.dataset.col);
-            i < parseInt(cell.dataset.col) + width;
+            let i = parseInt(cell.dataset.col, 10);
+            i < parseInt(cell.dataset.col, 10) + width;
             i += 1
           ) {
             if (
@@ -111,15 +101,15 @@ initialLoad();
           ) {
             displayUserShips(human.gameBoard.getBoard());
             placementMessage.textContent = `Place your ${next}`;
-            orientation = "x";
+            currentOrientation = "x";
             callback();
           }
         });
         cell.addEventListener("mouseenter", () => {
           cell.style.backgroundColor = "black";
           for (
-            let i = parseInt(cell.dataset.row);
-            i < parseInt(cell.dataset.row) + width;
+            let i = parseInt(cell.dataset.row, 10);
+            i < parseInt(cell.dataset.row, 10) + width;
             i += 1
           ) {
             if (
@@ -135,8 +125,8 @@ initialLoad();
         cell.addEventListener("mouseleave", () => {
           cell.style.backgroundColor = "";
           for (
-            let i = parseInt(cell.dataset.row);
-            i < parseInt(cell.dataset.row) + width;
+            let i = parseInt(cell.dataset.row, 10);
+            i < parseInt(cell.dataset.row, 10) + width;
             i += 1
           ) {
             if (
@@ -236,7 +226,6 @@ initialLoad();
             if (gameIsOver(human.gameBoard, computer.gameBoard)) {
               if (human.gameBoard.allSunk()) displayGameEndPopup("computer");
               else displayGameEndPopup("human");
-              // display gameEndPopup with winner info
               return;
             }
           } else computerBoardCell.classList.add("miss");
@@ -255,7 +244,6 @@ initialLoad();
                   `#user-grid div[data-row='${cellAttacked[0]}'][data-col='${cellAttacked[1]}']`
                 )
                 .classList.add("sunk");
-              // find all the cells that contain the same boat
               for (let j = 0; j < 10; j += 1) {
                 if (
                   human.gameBoard.getBoard()[cellAttacked[0]][j] ===
@@ -296,7 +284,6 @@ initialLoad();
             if (gameIsOver(human.gameBoard, computer.gameBoard)) {
               if (human.gameBoard.allSunk()) displayGameEndPopup("computer");
               else displayGameEndPopup("human");
-              // display gameEndPopup with winner info
             }
           } else
             document
@@ -309,6 +296,20 @@ initialLoad();
       );
     });
   };
+
+  const rotate = document.querySelector("#rotate");
+  rotate.addEventListener("click", () => {
+    if (currentOrientation === "x") {
+      currentOrientation = "y";
+    } else {
+      currentOrientation = "x";
+    }
+    addPlacementGridEventListeners(
+      currentWidth,
+      currentCallback,
+      nextShipToPlace
+    );
+  });
 
   const restart = document.querySelector("#restart");
   restart.addEventListener("click", () => {
