@@ -7,7 +7,7 @@ import {
   removeAllChildNodes,
 } from "./dom-stuff";
 import { playerFactory, shipFactory } from "./factories";
-import { gameIsOver, placeShipsRandomly } from "./game";
+import placeShipsRandomly from "./game";
 import initialLoad from "./initial-load";
 import "./styles.css";
 
@@ -51,7 +51,6 @@ initialLoad();
           }
         });
         cell.addEventListener("mouseenter", () => {
-          cell.style.backgroundColor = "black";
           for (
             let i = parseInt(cell.dataset.col, 10);
             i < parseInt(cell.dataset.col, 10) + width;
@@ -61,14 +60,17 @@ initialLoad();
               document.querySelector(
                 `#placement-grid div[data-row='${cell.dataset.row}'][data-col='${i}'`
               )
-            )
+            ) {
               document.querySelector(
                 `#placement-grid div[data-row='${cell.dataset.row}'][data-col='${i}'`
               ).style.backgroundColor = "black";
+              document.querySelector(
+                `#placement-grid div[data-row='${cell.dataset.row}'][data-col='${i}'`
+              ).style.borderColor = "white";
+            }
           }
         });
         cell.addEventListener("mouseleave", () => {
-          cell.style.backgroundColor = "";
           for (
             let i = parseInt(cell.dataset.col, 10);
             i < parseInt(cell.dataset.col, 10) + width;
@@ -77,11 +79,18 @@ initialLoad();
             if (
               document.querySelector(
                 `#placement-grid div[data-row='${cell.dataset.row}'][data-col='${i}'`
-              )
-            )
+              ) &&
+              typeof human.gameBoard.getBoard()[parseInt(cell.dataset.row, 10)][
+                i
+              ] !== "object"
+            ) {
               document.querySelector(
                 `#placement-grid div[data-row='${cell.dataset.row}'][data-col='${i}'`
               ).style.backgroundColor = "";
+              document.querySelector(
+                `#placement-grid div[data-row='${cell.dataset.row}'][data-col='${i}'`
+              ).style.borderColor = "black";
+            }
           }
         });
       });
@@ -106,7 +115,6 @@ initialLoad();
           }
         });
         cell.addEventListener("mouseenter", () => {
-          cell.style.backgroundColor = "black";
           for (
             let i = parseInt(cell.dataset.row, 10);
             i < parseInt(cell.dataset.row, 10) + width;
@@ -116,14 +124,17 @@ initialLoad();
               document.querySelector(
                 `#placement-grid div[data-row='${i}'][data-col='${cell.dataset.col}'`
               )
-            )
+            ) {
               document.querySelector(
                 `#placement-grid div[data-row='${i}'][data-col='${cell.dataset.col}'`
               ).style.backgroundColor = "black";
+              document.querySelector(
+                `#placement-grid div[data-row='${i}'][data-col='${cell.dataset.col}'`
+              ).style.borderColor = "white";
+            }
           }
         });
         cell.addEventListener("mouseleave", () => {
-          cell.style.backgroundColor = "";
           for (
             let i = parseInt(cell.dataset.row, 10);
             i < parseInt(cell.dataset.row, 10) + width;
@@ -132,11 +143,18 @@ initialLoad();
             if (
               document.querySelector(
                 `#placement-grid div[data-row='${i}'][data-col='${cell.dataset.col}'`
-              )
-            )
+              ) &&
+              typeof human.gameBoard.getBoard()[i][
+                parseInt(cell.dataset.col, 10)
+              ] !== "object"
+            ) {
               document.querySelector(
                 `#placement-grid div[data-row='${i}'][data-col='${cell.dataset.col}'`
               ).style.backgroundColor = "";
+              document.querySelector(
+                `#placement-grid div[data-row='${i}'][data-col='${cell.dataset.col}'`
+              ).style.borderColor = "black";
+            }
           }
         });
       });
@@ -223,9 +241,8 @@ initialLoad();
             } else {
               computerBoardCell.classList.add("hit");
             }
-            if (gameIsOver(human.gameBoard, computer.gameBoard)) {
-              if (human.gameBoard.allSunk()) displayGameEndPopup("computer");
-              else displayGameEndPopup("human");
+            if (computer.gameBoard.allSunk()) {
+              displayGameEndPopup("human");
               return;
             }
           } else computerBoardCell.classList.add("miss");
@@ -281,9 +298,8 @@ initialLoad();
                   `#user-grid div[data-row='${cellAttacked[0]}'][data-col='${cellAttacked[1]}']`
                 )
                 .classList.add("hit");
-            if (gameIsOver(human.gameBoard, computer.gameBoard)) {
-              if (human.gameBoard.allSunk()) displayGameEndPopup("computer");
-              else displayGameEndPopup("human");
+            if (human.gameBoard.allSunk()) {
+              displayGameEndPopup("computer");
             }
           } else
             document

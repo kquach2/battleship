@@ -1,5 +1,4 @@
 import { shipFactory } from "./factories";
-const gameIsOver = (board1, board2) => board1.allSunk() || board2.allSunk();
 
 const placeShipsRandomly = (board) => {
   const possibleSpots = [];
@@ -31,7 +30,6 @@ const placeShipsRandomly = (board) => {
     else randomDirection = "y";
     if (board.placeShip(ship, randomCoordinates, randomDirection) === "fail")
       place(ship);
-    else console.log(`[${randomCoordinates}] ${randomDirection}`);
   };
 
   place(carrier);
@@ -41,4 +39,4 @@ const placeShipsRandomly = (board) => {
   place(patrolBoat);
 };
 
-export { gameIsOver, placeShipsRandomly };
+export default placeShipsRandomly;
